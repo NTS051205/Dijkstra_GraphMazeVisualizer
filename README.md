@@ -31,6 +31,25 @@ A comprehensive web application for visualizing Dijkstra's shortest path algorit
 ### Prerequisites
 - Modern web browser (Chrome, Firefox, Edge, etc.)
 - No installation required for demo. For local use, download or clone the repository.
+- ## 💻 Browser Compatibility
+
+### Desktop
+| Browser      | Minimum Version     |
+|--------------|---------------------|
+| Chrome       | 88+                 |
+| Firefox      | 85+                 |
+| Safari       | 14+                 |
+| Edge         | 88+ (Chromium)      |
+| Opera        | 74+                 |
+
+### Mobile
+| Browser            | Minimum Version     |
+|--------------------|---------------------|
+| Chrome             | 88+                 |
+| Safari iOS         | 14+                 |
+| Samsung Internet   | 15+                 |
+| Opera Mobile       | 63+                 |
+
 
 ### Installation
 
