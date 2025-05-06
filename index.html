@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dijkstra Algorithm & Maze Game</title>
+    <link rel="stylesheet" href="maze.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #1e1e1e;
+            color: white;
+            font-family: 'Consolas', monospace;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        #controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .visualization-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: calc(100vh - 100px);
+        }
+
+        #graphContainer {
+            flex: 2;
+            border: 1px solid #444;
+            padding: 20px;
+            background-color: #252526;
+            min-height: 400px;
+        }
+
+        #logContainer {
+            flex: 1;
+            border: 1px solid #444;
+            padding: 20px;
+            background-color: #252526;
+            overflow-y: auto;
+            min-height: 150px;
+        }
+
+        #arrayContainer {
+            flex: 1;
+            border: 1px solid #444;
+            padding: 20px;
+            background-color: #252526;
+            min-height: 100px;
+        }
+
+        #codeContainer {
+            border: 1px solid #444;
+            padding: 20px;
+            background-color: #252526;
+            overflow: auto;
+            height: calc(100vh - 100px);
+        }
+
+        .array-cell {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #666;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 5px;
+            background-color: #333;
+        }
+
+        .array-cell.active {
+            background-color: #4CAF50;
+        }
+
+        .line-number {
+            color: #858585;
+            margin-right: 10px;
+            user-select: none;
+        }
+
+        .code-line {
+            padding: 2px 0;
+        }
+
+        .code-line.highlight {
+            background-color: #2d4f2d;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .log-entry {
+            color: #dcdcdc;
+            font-family: 'Consolas', monospace;
+            margin: 2px 0;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #speedSlider {
+            width: 100px;
+        }
+
+        .node circle {
+            cursor: pointer;
+            transition: fill 0.3s;
+        }
+
+        .node circle.start {
+            fill: #4CAF50 !important;
+        }
+
+        .node circle.end {
+            fill: #f44336 !important;
+        }
+
+        .selection-status {
+            color: #dcdcdc;
+            margin-left: 20px;
+            font-size: 14px;
+        }
+
+        .step-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: 20px;
+            padding: 5px 15px;
+            background: #252526;
+            border-radius: 4px;
+        }
+
+        .step-counter {
+            font-family: 'Consolas', monospace;
+            color: #dcdcdc;
+            min-width: 100px;
+        }
+
+        .step-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .step-btn {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .step-btn:hover {
+            background-color: #555;
+        }
+
+        .step-btn:disabled {
+            background-color: #333;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .execution-mode {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 15px;
+        }
+
+        .mode-label {
+            color: #dcdcdc;
+            font-size: 14px;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background-color: #4CAF50;
+        }
+
+        .content-container > div {
+            display: none;
+        }
+
+        .content-container > div.active {
+            display: block;
+        }
+
+        #sandbox-content {
+            height: calc(100vh - 100px);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #252526;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tool {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .tool:hover {
+            background-color: #45a049;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .control-panel button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #2196F3;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .control-panel button:hover {
+            background-color: #0b7dda;
+        }
+
+        .canvas-container {
+            background-color: #252526;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+            height: 600px;
+        }
+
+        #graph-canvas {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #252526;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .step-info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #252526;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .step-counter {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            margin-top: 10px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .node {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #666;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+            transition: background-color 0.3s;
+        }
+
+        .node.start {
+            background-color: #4CAF50;
+        }
+
+        .node.end {
+            background-color: #f44336;
+        }
+
+        .node.visited {
+            background-color: #2196F3;
+        }
+
+        .node.path {
+            background-color: #9b59b6;
+        }
+
+        .node.current {
+            background-color: #ff9800;
+        }
+
+        .edge-label {
+            position: absolute;
+            background-color: #333;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #weight-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #252526;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .modal-content input {
+            margin: 10px 0;
+            padding: 5px;
+            width: 100px;
+            background-color: #333;
+            border: 1px solid #666;
+            color: white;
+            border-radius: 3px;
+        }
+
+        .modal-content button {
+            margin: 5px;
+            padding: 5px 15px;
+        }
+
+        .modal-content button.confirm-btn {
+            background-color: #4CAF50;
+        }
+
+        .modal-content button.cancel-btn {
+            background-color: #f44336;
+        }
+
+        .instructions {
+            background-color: #252526;
+            color: #dcdcdc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        #maze-content {
+            padding: 20px;
+        }
+        
+        .maze-toolbar, .maze-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .maze-tool, .maze-controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .maze-tool:hover, .maze-controls button:hover {
+            background-color: #45a049;
+        }
+
+        .maze-tool.active {
+            background-color: #2196F3;
+        }
+
+        #mazeContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .maze-cell {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #444;
+            box-sizing: border-box;
+        }
+
+        .maze-wall {
+            background-color: #666;
+        }
+
+        .maze-start {
+            background-color: #4CAF50;
+        }
+
+        .maze-goal {
+            background-color: #f44336;
+        }
+
+        .maze-path {
+            background-color: #2196F3;
+        }
+
+        .maze-solution {
+            background-color: #9c27b0;
+        }
+
+        .maze-bomb {
+            background-color: #ff9800;
+            border-radius: 50%;
+        }
+
+        .maze-visited {
+            background-color: rgba(33, 150, 243, 0.3);
+        }
+
+        .maze-instructions {
+            background-color: #252526;
+            color: #dcdcdc;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .maze-instructions h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+
+        .maze-instructions ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+
+        .maze-instructions li {
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+
+        .maze-controls-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .maze-tools-group, .maze-actions-group {
+            flex: 1;
+            background-color: #252526;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .maze-tools-group h4, .maze-actions-group h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+
+        .maze-toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .maze-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .maze-tool, .maze-controls button {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .maze-tool:hover, .maze-controls button:hover {
+            background-color: #444;
+        }
+
+        .maze-tool.active {
+            background-color: #4CAF50;
+        }
+
+        .primary-action {
+            background-color: #2196F3 !important;
+        }
+
+        .primary-action:hover {
+            background-color: #1976D2 !important;
+        }
+
+        .tool-icon, .action-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            display: inline-block;
+            border-radius: 3px;
+        }
+
+        .start-icon {
+            background-color: #4CAF50;
+        }
+
+        .goal-icon {
+            background-color: #f44336;
+        }
+
+        .wall-icon {
+            background-color: #666;
+        }
+
+        .bomb-icon {
+            background-color: #ff9800;
+        }
+
+        .path-icon {
+            background-color: #2196F3;
+        }
+
+        #mazeContainer {
+            background-color: #252526;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: center;
+        }
+
+        .maze-cell {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #444;
+            box-sizing: border-box;
+            transition: background-color 0.2s;
+        }
+
+        .maze-wall {
+            background-color: #666;
+        }
+
+        .maze-start {
+            background-color: #4CAF50;
+        }
+
+        .maze-goal {
+            background-color: #f44336;
+        }
+
+        .maze-path {
+            background-color: #2196F3;
+        }
+
+        .maze-solution {
+            background-color: #9c27b0;
+        }
+
+        .maze-bomb {
+            background-color: #ff9800;
+            border-radius: 50%;
+        }
+
+        .maze-visited {
+            background-color: rgba(33, 150, 243, 0.3);
+        }
+
+        .maze-header {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .maze-instructions, .maze-stats {
+            flex: 1;
+            background-color: #252526;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .maze-instructions h3, .maze-stats h3 {
+            margin-top: 0;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+
+        .maze-instructions ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        .maze-instructions li {
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .maze-controls-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .maze-tools-group, .maze-actions-group {
+            flex: 1;
+            background-color: #252526;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .maze-tools-group h4, .maze-actions-group h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+
+        .maze-toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tool-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .maze-tool {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .maze-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .control-row button {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            min-width: 120px;
+        }
+
+        .maze-tool:hover, .control-row button:hover {
+            background-color: #444;
+        }
+
+        .maze-tool.active {
+            background-color: #4CAF50;
+        }
+
+        .primary-action {
+            background-color: #2196F3 !important;
+        }
+
+        .primary-action:hover {
+            background-color: #1976D2 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login/Register Modal & User Info (tách sang auth.html, sẽ được load động) -->
+    <div id="auth-html-placeholder"></div>
+
+    <div class="tab-container">
+        <button class="tab active" onclick="switchTab('dijkstra')">Dijkstra Visualization</button>
+        <button class="tab" onclick="switchTab('maze')">Maze Game</button>
+        <button class="tab" onclick="switchTab('sandbox')">Shortest Path Sandbox</button>
+    </div>
+
+    <div class="content-container">
+        <div id="dijkstra-content" class="active">
+            <div id="controls">
+                <button onclick="generateNewGraph()">Tạo Đồ Thị Mới</button>
+                <button onclick="runDijkstra()">Chạy Thuật Toán</button>
+                <div class="speed-control">
+                    <label>Tốc độ:</label>
+                    <input type="range" id="speedSlider" min="1" max="100" value="50">
+                </div>
+                <div class="execution-mode">
+                    <label class="mode-label">Chế độ:</label>
+                    <select id="executionMode" onchange="updateExecutionMode()">
+                        <option value="auto">Tự động</option>
+                        <option value="manual">Thủ công (Từng bước)</option>
+                    </select>
+                </div>
+                <div class="step-controls">
+                    <div class="step-counter">Bước: <span id="currentStep">0</span> / <span id="totalSteps">0</span></div>
+                    <div class="step-buttons">
+                        <button class="step-btn" id="prevStep" onclick="previousStep()" disabled>◀ Trước</button>
+                        <button class="step-btn" id="nextStep" onclick="nextStep()" disabled>Tiếp ▶</button>
+                    </div>
+                </div>
+                <div class="selection-status">
+                    Click vào các đỉnh để chọn điểm bắt đầu (xanh) và điểm kết thúc (đỏ)
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="visualization-column">
+                    <div id="graphContainer"></div>
+                    <div id="logContainer"></div>
+                    <div id="arrayContainer">
+                        <div id="arrayVisualization"></div>
+                    </div>
+                </div>
+                <div id="codeContainer">
+                    <pre id="codeArea"></pre>
+                </div>
+            </div>
+        </div>
+
+        <div id="maze-content">
+            <div class="maze-header">
+                <div class="maze-instructions">
+                    <h3>Luật Chơi Mê Cung:</h3>
+                    <ul>
+                        <li>Bắt đầu từ ô màu xanh lá (điểm xuất phát)</li>
+                        <li>Di chuyển đến ô màu đỏ (đích)</li>
+                        <li>Tránh các ô màu cam (bom) nếu có thể, nếu gặp phải bom sẽ thêm điểm</li>
+                        <li>Chỉ có thể di chuyển sang các ô liền kề</li>
+                        <li>Không thể đi qua tường (ô đen)</li>
+                    </ul>
+                </div>
+                <div class="maze-stats">
+                    <h3>Thống Kê:</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Số bước đi:</span>
+                            <span id="step-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Số bom đã gặp:</span>
+                            <span id="bomb-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Điểm số:</span>
+                            <span id="score" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Độ dài đường đi:</span>
+                            <span id="path-length" class="stat-value">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="maze-controls-container">
+                <div class="maze-tools-group">
+                    <h4>Công Cụ</h4>
+                    <div class="maze-toolbar">
+                        <div class="tool-row">
+                            <button class="maze-tool active" id="set-start">
+                                <span class="tool-icon start-icon"></span>
+                                Đặt Điểm Bắt Đầu
+                            </button>
+                            <button class="maze-tool" id="set-goal">
+                                <span class="tool-icon goal-icon"></span>
+                                Đặt Điểm Đích
+                            </button>
+                        </div>
+                        <div class="tool-row">
+                            <button class="maze-tool" id="add-wall">
+                                <span class="tool-icon wall-icon"></span>
+                                Thêm Tường
+                            </button>
+                            <button class="maze-tool" id="add-bomb">
+                                <span class="tool-icon bomb-icon"></span>
+                                Thêm Bom
+                            </button>
+                        </div>
+                        <div class="tool-row">
+                            <button class="maze-tool" id="draw-path">
+                                <span class="tool-icon path-icon"></span>
+                                Vẽ Đường Đi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="maze-actions-group">
+                    <h4>Thao Tác</h4>
+                    <div class="maze-controls">
+                        <div class="control-row">
+                            <button id="generate-maze" class="primary-action">
+                                <span class="action-icon generate-icon"></span>
+                                Tạo Mê Cung Ngẫu Nhiên
+                            </button>
+                            <button id="show-solution" class="primary-action">
+                                <span class="action-icon solution-icon"></span>
+                                Hiện Lời Giải
+                            </button>
+                        </div>
+                        <div class="control-row">
+                            <button id="reset-path">
+                                <span class="action-icon reset-icon"></span>
+                                Xóa Đường Đi
+                            </button>
+                            <button id="clear-maze">
+                                <span class="action-icon clear-icon"></span>
+                                Xóa Mê Cung
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mazeContainer"></div>
+        </div>
+
+        <div id="sandbox-content">
+            <div class="instructions">
+                <p>Hướng dẫn: Nhấp chuột vào khung vẽ để thêm đỉnh. Chọn công cụ Thêm Cạnh và kéo từ đỉnh này sang đỉnh khác để nối. Nhấp đúp chuột vào đỉnh để đặt làm điểm bắt đầu (màu xanh lá). Nhấp chuột phải vào đỉnh để đặt làm điểm kết thúc (màu đỏ).</p>
+            </div>
+            
+            <div class="toolbar">
+                <button class="tool active" id="node-tool">Thêm Đỉnh</button>
+                <button class="tool" id="edge-tool">Thêm Cạnh</button>
+            </div>
+            
+            <div class="control-panel">
+                <button id="run-dijkstra">Chạy Dijkstra</button>
+                <button id="step-dijkstra">Chạy Từng Bước</button>
+                <button id="next-step" disabled>Bước Tiếp</button>
+                <button id="clear-path">Xóa Đường Đi</button>
+                <button id="generate-random">Tạo Đồ Thị Ngẫu Nhiên</button>
+                <button id="clear-all">Xóa Tất Cả</button>
+            </div>
+            
+            <div class="step-info">
+                <div class="step-counter">
+                    <span id="current-step">0</span> / <span id="total-steps">0</span>
+                </div>
+                <div class="step-description" id="step-description">
+                    Nhấn "Chạy Từng Bước" để bắt đầu
+                </div>
+            </div>
+            
+            <div class="canvas-container">
+                <div id="graph-canvas"></div>
+            </div>
+            
+            <div class="results" id="results-panel">
+                <h3>Kết Quả</h3>
+                <div id="results-content">Chạy thuật toán Dijkstra để xem kết quả.</div>
+            </div>
+
+            <div id="weight-modal" class="modal">
+                <div class="modal-content">
+                    <h3>Nhập Trọng Số Cạnh</h3>
+                    <input type="number" id="weight-input" min="1" value="1">
+                    <button class="confirm-btn" id="confirm-weight">Xác Nhận</button>
+                    <button class="cancel-btn" id="cancel-weight">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Nạp auth.html trước khi chạy auth.js
+    fetch('auth.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('auth-html-placeholder').innerHTML = html;
+        // Sau khi auth.html đã vào DOM, mới load auth.js
+        var s = document.createElement('script');
+        s.src = 'auth.js';
+        document.body.appendChild(s);
+      });
+    </script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="graph.js"></script>
+    <script src="maze.js"></script>
+    <script src="sandbox.js"></script>
+    <script>
+        let mazeGame;
+        
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+                if (t.textContent.toLowerCase().includes(tab)) {
+                    t.classList.add('active');
+                }
+            });
+
+            // Update content
+            document.querySelectorAll('.content-container > div').forEach(d => {
+                d.classList.remove('active');
+            });
+            document.getElementById(`${tab}-content`).classList.add('active');
+
+            // Initialize maze game if switching to maze tab
+            if (tab === 'maze' && !mazeGame) {
+                mazeGame = new MazeGame('mazeContainer');
+            }
+        }
+
+        // Initialize the page with Dijkstra visualization active
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('dijkstra');
+        });
+    </script>
+</body>
+</html>

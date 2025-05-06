@@ -1,0 +1,30 @@
+<!-- Login/Register Modal -->
+<div id="auth-modal" class="auth-modal">
+  <div class="auth-modal-content">
+    <div class="auth-tabs">
+      <button id="login-tab" class="auth-tab active">Đăng nhập</button>
+      <button id="register-tab" class="auth-tab">Đăng ký</button>
+    </div>
+    <form id="login-form" class="auth-form">
+      <h2>Đăng nhập</h2>
+      <input type="text" id="login-username" placeholder="Tên đăng nhập" required autocomplete="username">
+      <input type="password" id="login-password" placeholder="Mật khẩu" required autocomplete="current-password">
+      <button type="submit" class="auth-btn">Đăng nhập</button>
+      <div class="auth-error" id="login-error"></div>
+    </form>
+    <form id="register-form" class="auth-form" style="display:none;">
+      <h2>Đăng ký</h2>
+      <input type="text" id="register-username" placeholder="Tên đăng nhập" required autocomplete="username">
+      <input type="password" id="register-password" placeholder="Mật khẩu" required autocomplete="new-password">
+      <input type="password" id="register-password2" placeholder="Nhập lại mật khẩu" required autocomplete="new-password">
+      <button type="submit" class="auth-btn">Đăng ký</button>
+      <div class="auth-error" id="register-error"></div>
+    </form>
+  </div>
+</div>
+
+<!-- User Info/Logout -->
+<div id="user-info" style="display:none; position: absolute; top: 20px; right: 30px; z-index: 2000;">
+  <span id="user-greeting"></span>
+  <button id="logout-btn" style="margin-left: 10px; background:#f44336;">Đăng xuất</button>
+</div>
