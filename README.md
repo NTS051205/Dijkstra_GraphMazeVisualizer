@@ -1,4 +1,4 @@
-# Dijkstra Graph & Maze Visualizer
+# Dijkstra Graph & Maze Visualizer.....
 
 A comprehensive web application for visualizing Dijkstra's shortest path algorithm on both graphs and mazes. This project provides interactive tools for learning, teaching, and experimenting with graph algorithms and maze solving.
 
